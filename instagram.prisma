@@ -20,18 +20,19 @@ model User {
     posts         Post[]
     likedComments CommentLike[]
     stories       Story[]
-    savedPosts    savedPost[]
+    savedPosts    SavedPost[]
     highlights    Highlight[]
-    Tags          Tag[]
+    postTags      PostTag[]
     storyTags     storyTag[]
-    View          View[]
-    StoryView     StoryView[]
+    postViews     PostView[]
+    storyViews    StoryView[]
+    notes         Note[]
 }
 
 model Post {
     id            String      @id @default(cuid())
     userId        String
-    User          User        @relation(fields: [userId], references: [id])
+    user          User        @relation(fields: [userId], references: [id])
     caption       String
     mediaUrls     String[]
     songId        String
@@ -41,9 +42,10 @@ model Post {
     hideComment   Boolean
     likes         PostLike[]
     comments      Comment[]
-    savedPost     savedPost[]
-    Tags          Tag[]
-    View          View[]
+    savedPosts    SavedPost[]
+    tags          PostTag[]
+    postViews     PostView[]
+    notes         Note[]
 }
 
 model media {
@@ -109,7 +111,7 @@ model storiesOnHighlight {
     @@id([storyId, highlightId])
 }
 
-model Tag {
+model PostTag {
     id     String @id @default(cuid())
     postId String
     Post   Post   @relation(fields: [postId], references: [id])
@@ -125,9 +127,8 @@ model storyTag {
     Story   Story  @relation(fields: [storyId], references: [id])
 }
 
-model savedPost {
-    id String @id @default(cuid())
-
+model SavedPost {
+    id     String @id @default(cuid())
     User   User   @relation(fields: [userId], references: [id])
     userId String
     Post   Post   @relation(fields: [postId], references: [id])
@@ -144,7 +145,7 @@ model Highlight {
     storiesOnHighlight storiesOnHighlight[]
 }
 
-model View {
+model PostView {
     id     String @id @default(cuid())
     postId String
     Post   Post   @relation(fields: [postId], references: [id])
@@ -160,5 +161,11 @@ model StoryView {
     User    User   @relation(fields: [userId], references: [id])
 }
 
-// post have notes
-// 
+model Note {
+    id     String @id @default(cuid())
+    postId String
+    Post   Post   @relation(fields: [postId], references: [id])
+    userId String
+    User   User   @relation(fields: [userId], references: [id])
+    note   String
+}

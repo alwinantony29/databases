@@ -6,27 +6,44 @@ generator client {
 
 datasource db {
     provider = "postgresql"
-    url      = env("DATABASE_URL")
+    url      = "postgresql://apple:@localhost:5432/insta"
 }
 
 model User {
-    id            String        @id @default(cuid())
-    email         String        @unique
-    userName      String        @unique
-    firstName     String
-    lastName      String
-    bio           String
-    password      String
-    posts         Post[]
+    id        String @id @default(cuid())
+    email     String @unique
+    userName  String @unique
+    firstName String
+    lastName  String
+    bio       String
+    password  String
+
+    posts      Post[]
+    savedPosts SavedPost[]
+    postTags   PostTag[]
+    postViews  PostView[]
+    notes      Note[]
+
+    comments      Comment[]
     likedComments CommentLike[]
-    stories       Story[]
-    savedPosts    SavedPost[]
-    highlights    Highlight[]
-    postTags      PostTag[]
-    storyTags     storyTag[]
-    postViews     PostView[]
-    storyViews    StoryView[]
-    notes         Note[]
+
+    stories    Story[]
+    highlights Highlight[]
+    storyTags  storyTag[]
+    storyViews StoryView[]
+
+    followers Connection[] @relation("follower")
+    following Connection[] @relation("following")
+}
+
+model Connection {
+    id String @id @default(cuid())
+
+    followerId String
+    follower   User   @relation(fields: [followerId], references: [id], name: "follower")
+
+    followingId String
+    following   User   @relation(fields: [followingId], references: [id], name: "following")
 }
 
 model Post {
@@ -58,6 +75,7 @@ model media {
 model Comment {
     id        String        @id @default(cuid())
     userId    String
+    User      User          @relation(fields: [userId], references: [id])
     content   String
     commentId String
     Post      Post          @relation(fields: [postId], references: [id])
@@ -96,13 +114,13 @@ model Story {
 
     Highlight          Highlight?           @relation(fields: [highlightId], references: [id])
     highlightId        String?
-    storiesOnHighlight storiesOnHighlight[]
+    storiesOnHighlight StoriesOnHighlight[]
     storyTags          storyTag[]
     StoryView          StoryView[]
     StoryLike          StoryLike[]
 }
 
-model storiesOnHighlight {
+model StoriesOnHighlight {
     storyId     String
     highlightId String
     Story       Story     @relation(fields: [storyId], references: [id])
@@ -142,7 +160,7 @@ model Highlight {
     User               User?                @relation(fields: [userId], references: [id])
     userId             String?
     stories            Story[]
-    storiesOnHighlight storiesOnHighlight[]
+    storiesOnHighlight StoriesOnHighlight[]
 }
 
 model PostView {
